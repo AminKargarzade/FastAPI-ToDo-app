@@ -8,7 +8,9 @@ from sqlalchemy import pool
 from alembic import context
 
 # Define the path to the .env file (parent directory of FastAPI project)
-BASE_DIR = Path(__file__).resolve().parent.parent.parent  # Move up two directories
+BASE_DIR = (
+    Path(__file__).resolve().parent.parent
+)  # Move up one directory to reach the FastAPI project root
 ENV_PATH = BASE_DIR / ".env"
 
 # Load environment variables from the .env file
