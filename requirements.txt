@@ -1,2 +1,3 @@
 fastapi[all]>=0.141, <0.142
 alembic >=1.20, <1.21
+passlib[bcrypt]
