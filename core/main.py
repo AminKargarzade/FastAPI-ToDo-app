@@ -2,7 +2,6 @@ from fastapi import Depends, FastAPI
 from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
-from users.models import UserModel
 
 tags_metadata = [
     {
@@ -43,7 +42,12 @@ app = FastAPI(
 app.include_router(tasks_routes)
 app.include_router(users_routes)
 
-from auth.basic_auth import get_authenticated_user
+# from fastapi.security import APIKeyHeader
+from fastapi.security import APIKeyQuery
+from auth.api_key_auth import get_api_key
+
+# header_scheme = APIKeyHeader(name="x-key")
+query_scheme = APIKeyQuery(name="api_key")
 
 
 @app.get("/public")
@@ -52,6 +56,6 @@ def public_route():
 
 
 @app.get("/private")
-def private_route(user: UserModel = Depends(get_authenticated_user)):
-    print(user)
-    return {"message": "This is a private endpoint"}
+def private_route(api_key: str = Depends(query_scheme)):
+    print(api_key)
+    return {"message": "This is a private endpoint", "api_key": api_key}
