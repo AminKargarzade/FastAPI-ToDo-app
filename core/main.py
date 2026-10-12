@@ -42,12 +42,7 @@ app = FastAPI(
 app.include_router(tasks_routes)
 app.include_router(users_routes)
 
-# from fastapi.security import APIKeyHeader
-from fastapi.security import APIKeyQuery
-from auth.api_key_auth import get_api_key
-
-# header_scheme = APIKeyHeader(name="x-key")
-query_scheme = APIKeyQuery(name="api_key")
+from auth.token_auth import get_authenticated_user
 
 
 @app.get("/public")
@@ -56,6 +51,6 @@ def public_route():
 
 
 @app.get("/private")
-def private_route(api_key: str = Depends(query_scheme)):
-    print(api_key)
-    return {"message": "This is a private endpoint", "api_key": api_key}
+def private_route(user=Depends(get_authenticated_user)):
+    print(user.username)
+    return {"message": "This is a private endpoint"}
