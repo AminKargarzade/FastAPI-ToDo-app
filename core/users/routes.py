@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from typing import List
 import secrets
+from auth.jwt_auth import generate_access_token, generate_refresh_token
 
 router = APIRouter(tags=["users"], prefix="/users")
 
@@ -27,12 +28,19 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password is Invalid(histiric)",
         )
-    token_obj = TokenModel(user_id=user_obj.id, token=generate_token())
-    db.add(token_obj)
-    db.commit()
-    db.refresh(token_obj)
+    # Token Based Authentication
+    # token_obj = TokenModel(user_id=user_obj.id, token=generate_token())
+    # db.add(token_obj)
+    # db.commit()
+    # db.refresh(token_obj)
+    access_token = generate_access_token(user_obj.id)  # type: ignore
+    refresh_token = generate_refresh_token(user_obj.id)  # type: ignore
     return JSONResponse(
-        content={"detail": "User Logged In Successfully!", "token": token_obj.token}
+        content={
+            "detail": "User Logged In Successfully!",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
     )
 
 
