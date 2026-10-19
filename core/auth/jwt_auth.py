@@ -31,7 +31,7 @@ def get_authenticated_user(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type"
             )
 
-        if datetime.now() > datetime.fromtimestamp(decoded.get("exp", 0)):
+        if datetime.now() > datetime.fromtimestamp(decoded.get("exp")): # type: ignore
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
             )
