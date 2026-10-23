@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Response, Request
 from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
@@ -54,3 +54,15 @@ def public_route():
 def private_route(user=Depends(get_authenticated_user)):
     print(user.id)
     return {"message": "This is a private endpoint"}
+
+
+@app.post("/set-cookie")
+def set_cookie(response: Response):
+    response.set_cookie(key="test", value="something")
+    return {"message": "Cookie 'test' has been set"}
+
+
+@app.get("/get-cookie")
+def get_cookie(request: Request):
+    cookie_value = request.cookies.get("test")
+    return {"message": f"Cookie 'test' has value: {cookie_value}"}

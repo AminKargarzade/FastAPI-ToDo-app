@@ -1,0 +1,1 @@
+# I will handle the access & refresh token of the user in the cookie. I will use the JWT token to authenticate the user and store the token in the cookie. I will also use the JWT token to refresh the access token when it expires. I will also use the JWT token to logout the user and delete the cookie.
