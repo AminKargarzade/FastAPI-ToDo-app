@@ -41,28 +41,3 @@ app = FastAPI(
 
 app.include_router(tasks_routes)
 app.include_router(users_routes)
-
-from auth.jwt_auth import get_authenticated_user
-
-
-@app.get("/public")
-def public_route():
-    return {"message": "This is a public endpoint"}
-
-
-@app.get("/private")
-def private_route(user=Depends(get_authenticated_user)):
-    print(user.id)
-    return {"message": "This is a private endpoint"}
-
-
-@app.post("/set-cookie")
-def set_cookie(response: Response):
-    response.set_cookie(key="test", value="something")
-    return {"message": "Cookie 'test' has been set"}
-
-
-@app.get("/get-cookie")
-def get_cookie(request: Request):
-    cookie_value = request.cookies.get("test")
-    return {"message": f"Cookie 'test' has value: {cookie_value}"}
