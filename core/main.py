@@ -4,6 +4,7 @@ from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
 import time
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 tags_metadata = [
     {
@@ -55,6 +56,7 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
+
 origins = ["*"]
 
 app.add_middleware(
@@ -64,3 +66,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Enabling Gzip for compressing responses more than 1000 bytes
+app.add_middleware(GZipMiddleware, minimum_size=1000)
