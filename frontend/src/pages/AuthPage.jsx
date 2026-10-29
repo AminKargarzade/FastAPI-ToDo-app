@@ -1,42 +1,89 @@
+import { User, Lock, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+
 const AuthPage = () => {
+  // Form State
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  // UI state
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   return (
     // Main page wrapper
-    <main>
+    <main className="grid min-h-dvh place-items-center p-3 text-teal-950 sm:p-6">
       {/* Card container */}
-      <div>
+      <div className="flex flex-col rounded-3xl bg-teal-50 shadow-2xl shadow-teal-900/20 md:min-h-115 md:flex-row ">
         {/* Left side */}
-        <div>
+        <div className="flex items-center justify-center p-3 md:w-1/2 md:p-7">
           {/* Form wrapper */}
-          <form action="">
-            <h2>Log in to your account</h2>
-            <p>We're happy to see you again!</p>
+          <form className="grid gap-4 rounded-3xl p-6 bg-white shadow-lg shadow-teal-900/15 sm:p-9">
+            <h2 className="text-center text-xl font-extrabold">
+              Log in to your account
+            </h2>
+            <p className="text-center -mt-2 text-sm text-teal-800/70">
+              We're happy to see you again!
+            </p>
 
             {/* Username section */}
-            <div>
-              <label>Username</label>
-              <div>
+            <div className="grid gap-2">
+              <label className="text-sm font-bold">Username</label>
+              <div className="flex items-center gap-2 rounded-2xl border-2 border-teal-100 bg-teal-50/60 p-2 focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/20">
                 {/* Username icon */}
-                <span></span>
-                <input type="text" placeholder="Enter your username" />
+                <span className="p-2 bg-teal-100 rounded-xl">
+                  <User size={18} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="outline-none"
+                />
               </div>
             </div>
 
             {/* Password section */}
-            <div>
-              <label>Password</label>
-              <div>
+            <div className="grid gap-2">
+              <label className="text-sm font-bold">Password</label>
+              <div className="flex items-center gap-2 rounded-2xl border-2 border-teal-100 bg-teal-50/60 p-2 focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/20">
                 {/* Password icon */}
-                <span></span>
-                <input type="password" placeholder="Enter your password" />
+                <span className="p-2 bg-teal-100 rounded-xl">
+                  <Lock size={18} />
+                </span>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  className="outline-none"
+                />
                 {/* Eye icon */}
-                <button type="button"></button>
+                <button
+                  type="submit"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
             {/* Action button */}
-            <button type="submit">Log in</button>
-            <p>
-              Don't have an account? <a href="#">Sign up</a>
+            <button
+              type="submit"
+              disabled={loading}
+              className=" mt-2 bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition hover:bg-teal-700 disabled:opacity-50"
+            >
+              {loading ? "Logging in..." : "Log in"}
+            </button>
+            <p className="mt-2 text-center text-sm text-teal-700/70">
+              Don't have an account?
+              <a href="#" className="font-bold text-teal-700 hover:underline ml-1">
+                Sign up
+              </a>
             </p>
           </form>
         </div>
