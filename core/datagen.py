@@ -1,5 +1,4 @@
 from core.database import SessionLocal
-from sqlalchemy.orm import Session
 from users.models import UserModel
 from tasks.models import TaskModel
 from faker import Faker
