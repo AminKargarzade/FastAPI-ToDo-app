@@ -1,5 +1,6 @@
 import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import heroArt from "../assets/illustration.png";
 
 const AuthPage = () => {
   // Form State
@@ -12,13 +13,13 @@ const AuthPage = () => {
 
   return (
     // Main page wrapper
-    <main className="grid min-h-dvh place-items-center p-3 text-teal-950 sm:p-6">
+    <main className="grid min-h-dvh place-items-center p-3 text-teal-950 sm:p-6 w-full">
       {/* Card container */}
-      <div className="flex flex-col rounded-3xl bg-teal-50 shadow-2xl shadow-teal-900/20 md:min-h-115 md:flex-row ">
+      <div className="flex flex-col w-full max-w-4xl rounded-3xl bg-teal-50 shadow-2xl shadow-teal-900/20 md:min-h-115 md:flex-row ">
         {/* Left side */}
         <div className="flex items-center justify-center p-3 md:w-1/2 md:p-7">
           {/* Form wrapper */}
-          <form className="grid gap-4 rounded-3xl p-6 bg-white shadow-lg shadow-teal-900/15 sm:p-9">
+          <form className="grid gap-4 w-full rounded-3xl p-6 bg-white shadow-lg shadow-teal-900/15 sm:p-9">
             <h2 className="text-center text-xl font-extrabold">
               Log in to your account
             </h2>
@@ -63,7 +64,7 @@ const AuthPage = () => {
                 />
                 {/* Eye icon */}
                 <button
-                  type="submit"
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -81,7 +82,10 @@ const AuthPage = () => {
             </button>
             <p className="mt-2 text-center text-sm text-teal-700/70">
               Don't have an account?
-              <a href="#" className="font-bold text-teal-700 hover:underline ml-1">
+              <a
+                href="#"
+                className="font-bold text-teal-700 hover:underline ml-1"
+              >
                 Sign up
               </a>
             </p>
@@ -89,10 +93,12 @@ const AuthPage = () => {
         </div>
 
         {/* Right side */}
-        <section>
-          <h1>Welcome back!</h1>
-          <p>Log in to continue your journey and get things done</p>
-          <img src="" alt="" />
+        <section className="hidden md:w-1/2 md:flex flex-col bg-teal-50 bg-linear-to-t from-teal-100 to-transparent px-8 text-center pt-1">
+          <h1 className="mt-5 text-4xl font-extrabold">Welcome back!</h1>
+          <p className="text-teal-800/70 text-sm text-center">
+            Log in to continue your journey and get things done
+          </p>
+          <img src={heroArt} className="mt-10 max-h-80 scale-x-[-1] object-contain" />
         </section>
       </div>
     </main>
