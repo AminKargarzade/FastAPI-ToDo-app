@@ -2,7 +2,7 @@ import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import heroArt from "../assets/illustration.png";
 
-import { FaGithub } from "react-icons/fa";
+import { RxGithubLogo } from "react-icons/rx";
 import { FcGoogle } from "react-icons/fc";
 
 const AuthPage = () => {
@@ -111,7 +111,7 @@ const AuthPage = () => {
                 type="button"
                 className="flex items-center justify-center gap-2 border-2 rounded-2xl border-teal-100 bg-white py-2 text-sm font-bold text-teal-900 transition hover:bg-teal-50"
               >
-                <FaGithub size={22} /> GitHub
+                <RxGithubLogo size={22} /> GitHub
               </button>
             </div>
 
