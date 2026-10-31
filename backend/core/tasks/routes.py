@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Path, Depends, HTTPException, Query
-from fastapi.responses import JSONResponse
 from tasks.schemas import *
 from tasks.models import TaskModel
 from users.models import UserModel
