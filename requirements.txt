@@ -6,3 +6,4 @@ pyjwt
 faker
 flake8
 black
+pytest
