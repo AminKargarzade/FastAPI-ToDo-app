@@ -24,12 +24,13 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
     user_obj = db.query(UserModel).filter_by(username=request.username.lower()).first()
     if not user_obj:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="User Does NOT Exist!"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Username or Password",
         )
     if not user_obj.verify_password(request.password):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password is Invalid(histiric)",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Username or Password",
         )
     # Token Based Authentication
     # token_obj = TokenModel(user_id=user_obj.id, token=generate_token())
