@@ -23,7 +23,7 @@ const AuthPage = () => {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`flex flex-col w-full max-w-4xl overflow-hidden rounded-3xl bg-teal-50 shadow-2xl shadow-teal-900/20 md:min-h-175 md:flex-row ${
+        className={`flex flex-col w-full max-w-4xl overflow-hidden rounded-3xl bg-teal-50 shadow-2xl shadow-teal-900/20 md:min-h-180 md:flex-row ${
           isLogin ? "" : "md:flex-row-reverse"
         }`}
       >
@@ -31,7 +31,7 @@ const AuthPage = () => {
         <motion.div
           layout="position"
           transition={slide}
-          className="relative z-10 flex items-center p-3 md:w-1/2 md:p-7"
+          className="relative z-10 flex items-center justify-center p-3 md:w-1/2 md:p-7"
         >
           {/* 
             AnimatePresence mode="wait": Waits for the old form to finish fading out before the new form fades in. 
