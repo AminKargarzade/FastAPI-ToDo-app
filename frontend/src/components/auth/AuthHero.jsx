@@ -56,13 +56,14 @@ const AuthHero = ({ isLogin }) => {
       </div>
 
       {/* The image turns to face the form (flips horizontally) */}
-      <motion.img
-        src={heroArt}
-        initial={false} // Prevents a flip animation on the initial page load
-        animate={{ scaleX: isLogin ? -1 : 1 }} // -1 flips it, 1 is normal
-        transition={slide}
-        className="mt-10 max-h-150 object-contain"
+      <div className="flex-1 flex items-center justify-center pb-25">      
+        <motion.img
+          src={heroArt}
+          initial={false} // Prevents a flip animation on the initial page load
+          animate={{ scaleX: isLogin ? -1 : 1 }} // -1 flips it, 1 is normal
+          transition={slide}
       />
+      </div>
     </motion.section>
   );
 };
