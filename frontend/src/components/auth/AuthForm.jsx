@@ -115,7 +115,7 @@ const AuthForm = ({ isLogin, onSwitch }) => {
         whileTap={{ scale: 0.98 }}  // Shrinks slightly when clicked
         type="submit"
         disabled={loading}          // Prevents double-clicks
-        className="mt-2 bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition-colors hover:bg-teal-700 disabled:opacity-50"
+        className=" bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition-colors hover:bg-teal-700 disabled:opacity-50"
       >
         {/* Changes text based on loading state and login/signup mode */}
         {loading
