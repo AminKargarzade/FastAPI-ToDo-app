@@ -4,6 +4,7 @@ import { motion, useAnimation } from "motion/react";
 import Field from "./Field";
 import SocialButtons from "./SocialButtons";
 import { formVariants, itemVariants } from "./motion";
+import { register, login } from "../../services/authService";
 
 const AuthForm = ({ isLogin, onSwitch }) => {
   const mode = isLogin ? "login" : "signup";
@@ -16,24 +17,43 @@ const AuthForm = ({ isLogin, onSwitch }) => {
 
   // UI state
   const [loading, setLoading] = useState(false); // Disables button while waiting for API
-  const [error, setError] = useState("");        // Stores error message text
+  const [error, setError] = useState(""); // Stores error message text
 
-  const handleSubmit = (e) => {
+  // Left/right shake for errors
+  const shake = () =>
+    controls.start({
+      x: [0, -8, 8, -6, 6, 0],
+      transition: { duration: 0.15 },
+    });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // If signing up, check if passwords match
+    // Signup only: make sure both passwords match before calling the API
     if (!isLogin && password !== confirmPassword) {
       setError("Passwords do not match.");
-      
-      // Triggers the left/right shake animation
-      controls.start({
-        x: [0, -8, 8, -6, 6, 0],
-        transition: { duration: 0.15 },
-      });
+      shake();
       return;
     }
 
     setError(""); // Clear any previous errors if validation passes
+    setLoading(true);  // Disable the button and show "logging in...." / "Creating account"
+
+    // Login saves tokens; register switches back to the login form.
+    // Errors from authService are shown as-is. finally always stops loading.
+    try {
+      if (isLogin) {
+        await login({ username: username.trim(), password });
+      } else {
+        await register({ username: username.trim(), password, confirmPassword });
+        onSwitch();
+      }
+    } catch (err) {
+      setError(err.message);
+      shake();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,24 +117,22 @@ const AuthForm = ({ isLogin, onSwitch }) => {
 
       {/* Error Message Container */}
       <div className="min-h-6 flex items-center justify-center">
-        {error && (
-          <motion.p
-            animate={controls} // Connects to the shake animation trigger
-            role="alert"       // Tells screen readers to announce the error
-            className="text-center text-sm font-semibold text-red-600"
-          >
-            {error}
-          </motion.p>
-        )}
+        <motion.p
+          animate={controls} // Connects to the shake animation trigger
+          role="alert" // Tells screen readers to announce the error
+          className="text-center text-sm font-semibold text-red-600"
+        >
+          {error}
+        </motion.p>
       </div>
 
       {/* Submit Button */}
       <motion.button
         variants={itemVariants}
-        whileHover={{ y: -2 }}      // Lifts up slightly on hover
-        whileTap={{ scale: 0.98 }}  // Shrinks slightly when clicked
+        whileHover={{ y: -2 }} // Lifts up slightly on hover
+        whileTap={{ scale: 0.98 }} // Shrinks slightly when clicked
         type="submit"
-        disabled={loading}          // Prevents double-clicks
+        disabled={loading} // Prevents double-clicks
         className=" bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition-colors hover:bg-teal-700 disabled:opacity-50"
       >
         {/* Changes text based on loading state and login/signup mode */}
