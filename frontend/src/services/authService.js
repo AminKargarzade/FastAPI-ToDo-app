@@ -1,3 +1,7 @@
+import axios from "axios";
+
+const API_URL = import.meta.env.VITE_API_URL;
+
 // Extracts a clean error message from a FastAPI response
 function getErrorMessage(data) {
   // Standard Error (HTTPException): detail is a plain string
@@ -13,28 +17,24 @@ function getErrorMessage(data) {
   return "Something went wrong. Try again.";
 }
 
-async function post(path, body) {
-  let res;
+// A reusable wrapper for all POST requests to the backend
+export const post = async (path, body) => {
   try {
-    // Send POST with a JSON body; fetch throws only on network failure
-    res = await fetch(`${API_URL}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body), // Fetch sends strings, not objects
+    // Send the request. Axios automatically converts the body to JSON.
+    const response = await axios.post(`${API_URL}${path}`, body, {
+      timeout: 10000,
     });
-  } catch {
-    // Not 4xx/5xx erros
-    throw new Error("Can't reach the server");
-  }
 
-  let data = {};
-  try {
-    // Parse body
-    data = await res.json();
-  } catch {
-    // Fall back to {} if body isn't valid JSON
-  }
+    // If successful (200-299), return just the data payload
+    return response.data;
+  } catch (error) {
+    // 1. Network error: The server is offline or there's no internet
+    if (!error.response) {
+      throw new Error("Can't reach the server");
+    }
 
-  if (!res.ok) throw new Error(getErrorMessage(data));
-  return data;
-}
+    // 2. Server error (400, 422, 500, etc.) Extract the error data sent by FastAPI and format it nicely
+    const data = error.response.data || {};
+    throw new Error(getErrorMessage(data));
+  }
+};
