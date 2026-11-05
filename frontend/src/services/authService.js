@@ -58,3 +58,12 @@ export const login = async ({ username, password }) => {
   localStorage.setItem("refresh_token", data.refresh_token);
   return data;
 };
+
+export const isLoggedIn = () => {
+  !!localStorage.getItem("access_token");
+};
+
+export const logout = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+};
