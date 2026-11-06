@@ -12,14 +12,15 @@ const TasksPage = () => {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
-      
       {/* Title row: heading + New Task button */}
       <div className="flex justify-between mb-8">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">My Tasks</h2>
-          <p className="mt-1 text-sm text-teal-800/60">3 remaining · 2 done</p>
+          <p className="mt-1 text-sm text-teal-800/60">
+            {tasks.length} task{tasks.length !== 1 && "s"}
+          </p>
         </div>
-        
+
         {/* Opens the dialog */}
         <button
           onClick={() => setModalOpen(true)}
