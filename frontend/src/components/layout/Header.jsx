@@ -35,15 +35,16 @@ const Header = ({ username = "Pouya", onLogout }) => {
 
       {/* Right — avatar dropdown */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-            <Avatar className="h-10 w-10 cursor-pointer">
-              <AvatarFallback className="bg-gray-200 hover:bg-gray-400">
-                <User />
+        <DropdownMenuTrigger
+          nativeButton={false}
+          render={
+            <Avatar className="h-10 w-10 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+              <AvatarFallback className="bg-gray-200 hover:bg-gray-300">
+                <User size={20} />
               </AvatarFallback>
             </Avatar>
-          </button>
-        </DropdownMenuTrigger>
+          }
+        />
 
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuItem
