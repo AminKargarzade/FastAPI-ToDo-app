@@ -18,13 +18,13 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
   const [description, setDescription] = useState("");
 
   const handleCreateTask = (e) => {
-    e.preventDefault(); // Stop page refresh
-    
+    e.preventDefault();
+
     // Create the task object with a unique ID
     const newTask = { id: Date.now(), title, description };
-    
+
     onCreated(newTask); // Send the new task up to the parent (TasksPage)
-    
+
     // Clear the form and close the dialog
     setTitle("");
     setDescription("");
@@ -35,7 +35,6 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       {/* The modal popup box */}
       <DialogContent className="rounded-3xl">
-        
         {/* Header: Title and description text */}
         <DialogHeader>
           <DialogTitle className="text-xl font-extrabold text-teal-700">
@@ -48,7 +47,6 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
 
         {/* Form: handles submit */}
         <form onSubmit={handleCreateTask} className="grid gap-4">
-          
           {/* Title field - required */}
           <div className="grid gap-2">
             <label htmlFor="task-title" className="text-sm font-bold">
@@ -86,12 +84,16 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                setTitle("");
+                setDescription("");
+                onOpenChange(false);
+              }}
               className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Cancel
             </Button>
-            
+
             {/* Submit button: triggers handleCreateTask */}
             <Button
               type="submit"
