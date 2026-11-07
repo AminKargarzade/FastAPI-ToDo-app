@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import TaskItem from "@/components/tasks/TaskItem";
 import NewTaskDialog from "@/components/tasks/NewTaskDialog";
+import { getTasks } from "@/services/taskService";
 
 const TasksPage = () => {
   // List of tasks shown on the page
   const [tasks, setTasks] = useState([]);
 
+  // Loading and error state for fetching the tasks
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   // Controls whether the "New task" dialog is open
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Runs once when the component loads to fetch the initial tasks
+  useEffect(() => {
+    getTasks({ limit: 50 })
+      .then((data) => setTasks(data.reverse())) // Reverse the list (newest first) and save to state
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -16,9 +29,13 @@ const TasksPage = () => {
       <div className="flex justify-between mb-8 items-center">
         <div>
           <h2 className="text-3xl font-extrabold tracking-tight">My Tasks</h2>
-          <p className="mt-1 text-sm text-teal-800/60">
-            {tasks.length} task{tasks.length !== 1 && "s"}
-          </p>
+
+          {/* Only show the task count when loading is done and there are no errors */}
+          {!loading && !error && (
+            <p className="mt-1 text-sm text-teal-800/60">
+              {tasks.length} task{tasks.length !== 1 && "s"}
+            </p>
+          )}
         </div>
 
         {/* Opens the dialog */}
@@ -29,6 +46,14 @@ const TasksPage = () => {
           <Plus size={16} /> New Task
         </button>
       </div>
+
+      {/* Show error message in red if an error exists */}
+      {error && <p className="font-semibold text-red-600">{error}</p>}
+
+      {/* Show empty state ONLY if there's no error, not loading, and the list is empty */}
+      {!error && !loading && tasks.length === 0 && (
+        <p className="text-teal-800/60">No tasks yet. Create your first one!</p>
+      )}
 
       {/* Task list — renders a TaskItem for every task in the state */}
       <ul className="grid gap-4">
