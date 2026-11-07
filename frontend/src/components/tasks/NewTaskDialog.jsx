@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { createTask } from "@/services/taskService";
 import {
   Dialog,
   DialogContent,
@@ -13,26 +14,56 @@ const inputClass =
   "w-full rounded-xl border-2 border-teal-100 bg-teal-50/60 px-3 py-2 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/20";
 
 const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
-  // Form state for the new task
+  // Form state (stores what the user types)
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleCreateTask = (e) => {
+  // UI state (controls visual feedback)
+  const [loading, setLoading] = useState(false); // Disables button while sending data
+  const [error, setError] = useState(""); // Stores error message if submission fails
+
+  // Handles opening and closing the dialog (fires for Cancel button, clicking outside, or Escape key)
+  const handleOpenChange = (isOpen) => {
+    // If the dialog is closing (isOpen is false), clear the form for next time
+    if (!isOpen) {
+      setTitle("");
+      setDescription("");
+      setError("");
+    }
+    // Tell the parent component to actually open or close the modal
+    onOpenChange(isOpen);
+  };
+
+  // Submits the new task to the backend and resets the UI on success
+  const handleCreateTask = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    // Create the task object with a unique ID
-    const newTask = { id: Date.now(), title, description };
+    try {
+      // Send task data to the backend
+      const newTask = await createTask({
+        title: title.trim(),
+        description: description.trim(),
+        is_completed: false,
+      });
 
-    onCreated(newTask); // Send the new task up to the parent (TasksPage)
+      // Add new task to parent list
+      onCreated(newTask);
 
-    // Clear the form and close the dialog
-    setTitle("");
-    setDescription("");
-    onOpenChange(false);
+      // Close modal & reset form
+      handleOpenChange(false);
+    } catch (err) {
+      // Show error message on failure
+      setError(err.message);
+    } finally {
+      // Stop loading (success or failure)
+      setLoading(false);
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {/* The modal popup box */}
       <DialogContent className="rounded-3xl">
         {/* Header: Title and description text */}
@@ -77,6 +108,10 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
               className={inputClass}
             />
           </div>
+          {/* Shows the error message in red if one exists */}
+          {error && (
+            <p className="text-sm font-semibold text-red-600">{error}</p>
+          )}
 
           {/* Button row */}
           <div className="flex justify-between">
@@ -84,11 +119,7 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                setTitle("");
-                setDescription("");
-                onOpenChange(false);
-              }}
+              onClick={() => handleOpenChange(false)}
               className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Cancel
@@ -98,6 +129,7 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
             <Button
               type="submit"
               variant="default"
+              disabled={loading}
               className="bg-teal-600 text-white shadow-lg shadow-teal-600/20 hover:bg-teal-700"
             >
               Create task
