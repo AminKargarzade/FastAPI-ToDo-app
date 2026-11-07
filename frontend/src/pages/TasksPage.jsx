@@ -17,10 +17,18 @@ const TasksPage = () => {
 
   // Runs once when the component loads to fetch the initial tasks
   useEffect(() => {
-    getTasks({ limit: 50 })
-      .then((data) => setTasks(data.reverse())) // Reverse the list (newest first) and save to state
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    const loadTasks = async () => {
+      try {
+        const data = await getTasks({ limit: 50 });
+        setTasks(data.reverse());
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTasks();
   }, []);
 
   return (
