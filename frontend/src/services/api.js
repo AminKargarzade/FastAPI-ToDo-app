@@ -82,20 +82,20 @@ client.interceptors.response.use(
   // 2. If the request fails, run this error handler
   async (error) => {
     // Save the details of the failed request so we can retry it later
-    const original = error.config;
+    const originalRequest = error.config;
 
     // Check if the error is a 401 (Unauthorized) AND we haven't already retried this request
-    if (error.response?.status === 401 && !original._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       // Mark as retried so we don't create an infinite loop
-      original._retry = true;
+      originalRequest._retry = true;
 
       // Try to get a new token
       const newToken = await refreshAccessToken();
 
       // Success: Update the old request with the new token and retry it
       if (newToken) {
-        original.headers.Authorization = `Bearer ${newToken}`;
-        return client(original);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return client(originalRequest);
       }
       // Failure: The refresh token is expired/invalid. Clear everything and force login.
       localStorage.removeItem("access_token");
