@@ -3,7 +3,7 @@ import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Extracts a clean error message from a FastAPI response
-function getErrorMessage(data) {
+export const getErrorMessage = (data) => {
   // Standard Error (HTTPException): detail is a plain string
   if (typeof data.detail === "string") return data.detail;
 
@@ -15,7 +15,7 @@ function getErrorMessage(data) {
 
   // Fallback: for network issues or unexpected server errors
   return "Something went wrong. Try again.";
-}
+};
 
 // A reusable wrapper for all POST requests to the backend
 export const post = async (path, body) => {
