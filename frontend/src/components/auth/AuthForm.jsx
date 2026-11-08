@@ -5,8 +5,10 @@ import Field from "./Field";
 import SocialButtons from "./SocialButtons";
 import { formVariants, itemVariants } from "./motion";
 import { register, login } from "../../services/authService";
+import { useNavigate } from "react-router";
 
 const AuthForm = ({ isLogin, onSwitch }) => {
+  const navigate = useNavigate();
   const mode = isLogin ? "login" : "signup";
   const controls = useAnimation(); // Controls the shake animation for errors
 
@@ -37,15 +39,20 @@ const AuthForm = ({ isLogin, onSwitch }) => {
     }
 
     setError(""); // Clear any previous errors if validation passes
-    setLoading(true);  // Disable the button and show "logging in...." / "Creating account"
+    setLoading(true); // Disable the button and show "logging in...." / "Creating account"
 
     // Login saves tokens; register switches back to the login form.
     // Errors from authService are shown as-is. finally always stops loading.
     try {
       if (isLogin) {
         await login({ username: username.trim(), password });
+        navigate("/tasks");
       } else {
-        await register({ username: username.trim(), password, confirmPassword });
+        await register({
+          username: username.trim(),
+          password,
+          confirmPassword,
+        });
         onSwitch();
       }
     } catch (err) {
