@@ -18,3 +18,8 @@ export const createTask = (task) => {
     data: task, // { title, description, is_completed }
   });
 };
+
+// Delete a task(DELETE /tasks/{id})
+export const deleteTask = (id) => {
+  return request({ method: "delete", url: `/tasks/${id}` });
+};
