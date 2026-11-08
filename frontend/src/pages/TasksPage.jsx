@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import TaskItem from "@/components/tasks/TaskItem";
 import NewTaskDialog from "@/components/tasks/NewTaskDialog";
-import { getTasks } from "@/services/taskService";
+import { getTasks, deleteTask } from "@/services/taskService";
 
 const TasksPage = () => {
   // List of tasks shown on the page
@@ -30,6 +30,18 @@ const TasksPage = () => {
 
     loadTasks();
   }, []);
+
+  // Deletes a task from the backend and removes it from the local list
+  const handleDeleteTask = async (id) => {
+    setError("");
+    try {
+      await deleteTask(Number(id));
+      // Remove the deleted task from the local state list
+      setTasks((prev) => prev.filter((task) => task.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -66,7 +78,7 @@ const TasksPage = () => {
       {/* Task list — renders a TaskItem for every task in the state */}
       <ul className="grid gap-4">
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} />
+          <TaskItem key={task.id} task={task} onDelete={handleDeleteTask} />
         ))}
       </ul>
 
