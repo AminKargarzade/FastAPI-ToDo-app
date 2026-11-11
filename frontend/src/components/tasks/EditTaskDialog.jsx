@@ -5,11 +5,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Button } from "@/components/ui/button";
+
+// Reusable Tailwind classes for the input fields
+const inputClass =
+  "w-full rounded-xl border-2 border-teal-100 bg-teal-50/60 px-3 py-2 text-sm outline-none transition focus:border-teal-500 focus:bg-white focus:ring-4 focus:ring-teal-500/20";
 
 const EditTaskDialog = ({ task, open, onOpenChange, onUpdated }) => {
   // Form state for editing the task
@@ -66,42 +68,49 @@ const EditTaskDialog = ({ task, open, onOpenChange, onUpdated }) => {
 
         <form onSubmit={handleUpdateTask} className="grid gap-4">
           {/* Title field (required, min 5 chars) */}
-          <Input
+          <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title"
             required
             minLength={5}
             maxLength={150}
+            className={inputClass}
           />
 
           {/* Description field (optional) */}
-          <Textarea
+          <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description (optional)"
             maxLength={500}
             rows={4}
+            className={inputClass}
           />
 
           {/* Display error message if it exists */}
           {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
-          <DialogFooter>
+          <div className="flex justify-end gap-2">
             {/* Cancel: closes without saving */}
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
             >
               Cancel
             </Button>
-
             {/* Save: submits form, disabled while loading */}
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              variant="default"
+              disabled={loading}
+              className="bg-teal-600 text-white shadow-lg shadow-teal-600/20 hover:bg-teal-700"
+            >
               Save changes
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
