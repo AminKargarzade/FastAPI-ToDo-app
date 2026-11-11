@@ -23,3 +23,12 @@ export const createTask = (task) => {
 export const deleteTask = (id) => {
   return request({ method: "delete", url: `/tasks/${id}` });
 };
+
+// Update a task (PUT /tasks/{id})
+export const updateTask = (id, task) => {
+  return request({
+    method: "put",
+    url: `/tasks/${id}`,
+    data: task,
+  });
+};
