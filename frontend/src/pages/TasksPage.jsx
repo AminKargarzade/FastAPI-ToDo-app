@@ -1,21 +1,27 @@
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Undo2 } from "lucide-react";
 import TaskItem from "@/components/tasks/TaskItem";
 import NewTaskDialog from "@/components/tasks/NewTaskDialog";
 import { getTasks, deleteTask } from "@/services/taskService";
 import EditTaskDialog from "@/components/tasks/EditTaskDialog";
+import { toast } from "sonner";
 
 const TasksPage = () => {
-  // List of tasks shown on the page
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
 
-  // Loading and error state for fetching the tasks
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Controls whether the "New task" dialog is open
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Custom Tailwind styles for the toast notifications to match the app's theme
+  const toastClassNames = {
+    toast:
+      "rounded-2xl! border! border-teal-200! bg-teal-50! px-4! py-3! text-teal-950! shadow-xl! shadow-teal-900/15!",
+    content: "min-w-0! flex-1!", // lets long text shrink instead of breaking the layout
+    actionButton:
+      "flex! h-8! items-center! gap-1.5! rounded-full! border! border-teal-300! bg-white! px-3.5! text-sm! font-semibold! text-teal-700! shadow-sm! transition! duration-200! hover:border-teal-600! hover:bg-teal-600! hover:text-white! active:scale-95!",
+  };
 
   // Runs once when the component loads to fetch the initial tasks
   useEffect(() => {
@@ -33,16 +39,69 @@ const TasksPage = () => {
     loadTasks();
   }, []);
 
-  // Deletes a task from the backend and removes it from the local list
-  const handleDeleteTask = async (id) => {
-    setError("");
-    try {
-      await deleteTask(Number(id));
-      // Remove the deleted task from the local state list
-      setTasks((prev) => prev.filter((task) => task.id !== id));
-    } catch (err) {
-      setError(err.message);
-    }
+  // Removes the task instantly and delays the actual API call until the toast closes without Undo
+  const handleDeleteTask = (id) => {
+    // Find the task first to keep its data in case we need to restore it
+    const taskToDelete = tasks.find((task) => task.id === id);
+    if (!taskToDelete) return;
+
+    // Optimistic Update: Remove from UI instantly for a snappy feel
+    setTasks((prev) => prev.filter((task) => task.id !== id));
+
+    // 2. Flag to ensure the real delete only happens once (Undo clicked OR API called)
+    let settled = false;
+
+    // 3. The real API call: Runs only when the toast closes WITHOUT Undo
+    const commitDelete = async () => {
+      if (settled) return;
+      settled = true;
+
+      try {
+        await deleteTask(Number(id));
+      } catch (err) {
+        // If the API fails, restore the task to the UI and show an error
+        toast.error("Failed to delete task permanently", {
+          classNames: toastClassNames,
+        });
+        setTasks((prev) => [taskToDelete, ...prev]); // Restore if API fails
+      }
+    };
+
+    // 4. Display the toast notification with a custom message
+    toast(
+      <div className="flex min-w-0 items-center gap-1.5">
+        <span className="shrink-0 text-base font-bold">Task deleted!</span>
+        <span
+          title={taskToDelete.title}
+          className="flex min-w-0 text-xs font-normal text-teal-800/70"
+        >
+          <span className="shrink-0">(</span>
+          <span className="truncate">{taskToDelete.title}</span>
+          <span className="shrink-0">)</span>
+        </span>
+      </div>,
+      {
+        icon: <Trash2 size={20} className="text-red-500" />,
+        duration: 5000,
+        classNames: toastClassNames,
+        onAutoClose: commitDelete, // the toast timed out (the usual case)
+        onDismiss: commitDelete, // the user swiped it away or clicked the X
+
+        // The Undo button logic
+        action: {
+          label: (
+            <>
+              <Undo2 size={15} />
+              Undo
+            </>
+          ),
+          onClick: () => {
+            settled = true; // cancels the real delete
+            setTasks((prev) => [taskToDelete, ...prev]); // Restore the task to UI
+          },
+        },
+      },
+    );
   };
 
   return (
