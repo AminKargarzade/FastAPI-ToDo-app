@@ -114,7 +114,7 @@ const NewTaskDialog = ({ open, onOpenChange, onCreated }) => {
           )}
 
           {/* Button row */}
-          <div className="flex justify-between">
+          <div className="flex justify-end gap-2">
             {/* Cancel button: closes the dialog without saving */}
             <Button
               type="button"
