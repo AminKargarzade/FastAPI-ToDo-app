@@ -3,10 +3,12 @@ import { Plus } from "lucide-react";
 import TaskItem from "@/components/tasks/TaskItem";
 import NewTaskDialog from "@/components/tasks/NewTaskDialog";
 import { getTasks, deleteTask } from "@/services/taskService";
+import EditTaskDialog from "@/components/tasks/EditTaskDialog";
 
 const TasksPage = () => {
   // List of tasks shown on the page
   const [tasks, setTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
 
   // Loading and error state for fetching the tasks
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,12 @@ const TasksPage = () => {
       {/* Task list — renders a TaskItem for every task in the state */}
       <ul className="grid gap-4">
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} onDelete={handleDeleteTask} />
+          <TaskItem
+            key={task.id}
+            task={task}
+            onDelete={handleDeleteTask}
+            onEdit={setEditingTask}
+          />
         ))}
       </ul>
 
@@ -91,6 +98,23 @@ const TasksPage = () => {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onCreated={(task) => setTasks((prev) => [task, ...prev])}
+      />
+
+      {/* Edit Task Dialog */}
+      <EditTaskDialog
+        task={editingTask}
+        open={!!editingTask} // Converts task to a boolean: true (opens modal) if a task exists, false (closes modal) if null
+        onOpenChange={(open) => {
+          if (!open) setEditingTask(null); // Closes the popup
+        }}
+        onUpdated={(updatedTask) => {
+          setTasks((prev) =>
+            prev.map((task) =>
+              task.id === updatedTask.id ? updatedTask : task,
+            ),
+          );
+          setEditingTask(null); // Closes the popup
+        }}
       />
     </main>
   );
