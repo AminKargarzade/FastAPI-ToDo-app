@@ -6,14 +6,28 @@ import { getTasks, deleteTask } from "@/services/taskService";
 import EditTaskDialog from "@/components/tasks/EditTaskDialog";
 import { toast } from "sonner";
 import { updateTask } from "@/services/taskService";
+import { useSearchParams } from "react-router";
 
 const TasksPage = () => {
+  // Core task data: the main list of tasks and the specific task being edited
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
 
+  // UI state: controls visual feedback
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Get the search text from the URL (Header updates this)
+  const [searchParams] = useSearchParams();
+  const search = (searchParams.get("q") ?? "").trim();
+
+  // Filter the tasks that match the search (ignoring uppercase/lowercase)
+  const visibleTasks = tasks.filter((task) =>
+    `${task.title} ${task.description ?? ""}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
 
   // Custom Tailwind styles for the toast notifications to match the app's theme
   const toastClassNames = {
@@ -144,7 +158,9 @@ const TasksPage = () => {
           {/* Only show the task count when loading is done and there are no errors */}
           {!loading && !error && (
             <p className="mt-1 text-sm text-teal-800/60">
-              {tasks.length} task{tasks.length !== 1 && "s"}
+              {search
+                ? `${visibleTasks.length} of ${tasks.length} tasks`
+                : `${tasks.length} task${tasks.length !== 1 ? "s" : ""}`}
             </p>
           )}
         </div>
@@ -166,9 +182,15 @@ const TasksPage = () => {
         <p className="text-teal-800/60">No tasks yet. Create your first one!</p>
       )}
 
+      {error && !loading && tasks.length > 0 && visibleTasks.length === 0 && (
+        <p className="text-teal-800/60 wrap-anywhere">
+          No tasks match "{search}".
+        </p>
+      )}
+
       {/* Task list — renders a TaskItem for every task in the state */}
       <ul className="grid gap-4">
-        {tasks.map((task) => (
+        {visibleTasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}

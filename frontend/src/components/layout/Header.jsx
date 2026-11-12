@@ -1,6 +1,7 @@
 import logo from "@/assets/logo.png";
 import { Search, User, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useSearchParams } from "react-router";
 import {
   InputGroup,
   InputGroupAddon,
@@ -14,7 +15,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const Header = ({ username = "Pouya", onLogout }) => {
+const Header = ({ onLogout }) => {
+  // Hook to read and update URL query parameters (e.g., ?q=search)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") ?? "";
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+
+    // Update the URL as the user types
+    setSearchParams(value ? { q: value } : {}, { replace: true }); // replace: true stops each keystroke from creating a history entry
+  };
+
   return (
     <header className="h-16 px-4 border-b border-gray-200 bg-white flex items-center justify-between">
       {/* Left */}
@@ -26,7 +38,12 @@ const Header = ({ username = "Pouya", onLogout }) => {
       {/* Center — search with leading icon */}
       <div className="w-1/3">
         <InputGroup className="bg-gray-50 focus-within:ring-2! focus-within:ring-teal-500! focus-within:border-teal-500! transition">
-          <InputGroupInput placeholder="Search notes..." type="search" />
+          <InputGroupInput
+            placeholder="Search notes..."
+            type="search"
+            value={query}
+            onChange={handleSearch}
+          />
           <InputGroupAddon>
             <Search className="text-teal-600" size={18} />
           </InputGroupAddon>
