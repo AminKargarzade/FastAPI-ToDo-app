@@ -1,10 +1,13 @@
-import AuthPage from "./pages/AuthPage";
+import { RouterProvider } from "react-router";
+import router from "./routes/router";
+import { Toaster } from "@/components/ui/sonner";
 
 const App = () => {
   return (
-    <div>
-      <AuthPage />
-    </div>
+    <>
+      <RouterProvider router={router} />;
+      <Toaster position="top-right" offset={{ top: 70 }}/>;
+    </>
   );
 };
 

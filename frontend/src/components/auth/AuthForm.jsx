@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { User, Lock } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, useAnimation } from "motion/react";
 import Field from "./Field";
 import SocialButtons from "./SocialButtons";
 import { formVariants, itemVariants } from "./motion";
+import { register, login } from "../../services/authService";
+import { useNavigate } from "react-router";
 
-// The login / signup form. It is remounted on every mode change (see AuthPage),
-// so its fields and error message start fresh each time.
 const AuthForm = ({ isLogin, onSwitch }) => {
+  const navigate = useNavigate();
   const mode = isLogin ? "login" : "signup";
+  const controls = useAnimation(); // Controls the shake animation for errors
 
   // Form State
   const [username, setUsername] = useState("");
@@ -16,20 +18,53 @@ const AuthForm = ({ isLogin, onSwitch }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // UI state
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Disables button while waiting for API
+  const [error, setError] = useState(""); // Stores error message text
 
-  const handleSubmit = (e) => {
+  // Left/right shake for errors
+  const shake = () =>
+    controls.start({
+      x: [0, -8, 8, -6, 6, 0],
+      transition: { duration: 0.15 },
+    });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Signup only: make sure both passwords match before calling the API
     if (!isLogin && password !== confirmPassword) {
       setError("Passwords do not match.");
+      shake();
       return;
     }
-    setError("");
-    // TODO: call the login / register API here (wrap it with setLoading(true / false))
+
+    setError(""); // Clear any previous errors if validation passes
+    setLoading(true); // Disable the button and show "logging in...." / "Creating account"
+
+    // Login saves tokens; register switches back to the login form.
+    // Errors from authService are shown as-is. finally always stops loading.
+    try {
+      if (isLogin) {
+        await login({ username: username.trim(), password });
+        navigate("/tasks");
+      } else {
+        await register({
+          username: username.trim(),
+          password,
+          confirmPassword,
+        });
+        onSwitch();
+      }
+    } catch (err) {
+      setError(err.message);
+      shake();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
+    // Main form wrapper: Applies the staggered fade-in/slide-up animation
     <motion.form
       variants={formVariants}
       initial="hidden"
@@ -38,17 +73,21 @@ const AuthForm = ({ isLogin, onSwitch }) => {
       onSubmit={handleSubmit}
       className="grid gap-4 w-full rounded-3xl p-6 bg-white shadow-lg shadow-teal-900/15 sm:p-9"
     >
+      {/* Header: Changes text based on Login or Signup mode */}
       <motion.header variants={itemVariants} className="grid gap-1">
         <h2 className="text-center text-xl font-extrabold">
           {isLogin ? "Log in to your account" : "Create your account"}
         </h2>
         <p className="text-center text-sm text-teal-800/70">
-          {isLogin ? "We're happy to see you again!" : "It only takes a minute!"}
+          {isLogin
+            ? "We're happy to see you again!"
+            : "It only takes a minute!"}
         </p>
       </motion.header>
 
+      {/* Username Field */}
       <Field
-        id={`${mode}-username`}
+        id={`${mode}-username`} // Dynamic ID (login-username / signup-username) prevents autofill bugs
         label="Username"
         icon={User}
         placeholder={isLogin ? "Enter your username" : "Choose a username"}
@@ -56,16 +95,20 @@ const AuthForm = ({ isLogin, onSwitch }) => {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
+
+      {/* Password Field */}
       <Field
         id={`${mode}-password`}
         label="Password"
         icon={Lock}
         type="password"
         placeholder={isLogin ? "Enter your password" : "Create a password"}
-        autoComplete={isLogin ? "current-password" : "new-password"}
+        autoComplete={isLogin ? "current-password" : "new-password"} // Helps browser password managers
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+
+      {/* Confirm Password Field (Only shows during Signup) */}
       {!isLogin && (
         <Field
           id="signup-confirm"
@@ -79,42 +122,48 @@ const AuthForm = ({ isLogin, onSwitch }) => {
         />
       )}
 
-      {/* Error: slides in and shakes once */}
-      <AnimatePresence>
-        {error && (
-          <motion.p
-            role="alert"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0, x: [0, -6, 6, -4, 4, 0] }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="text-center text-sm font-semibold text-red-600"
-          >
-            {error}
-          </motion.p>
-        )}
-      </AnimatePresence>
+      {/* Error Message Container */}
+      <div className="min-h-6 flex items-center justify-center">
+        <motion.p
+          animate={controls} // Connects to the shake animation trigger
+          role="alert" // Tells screen readers to announce the error
+          className="text-center text-sm font-semibold text-red-600"
+        >
+          {error}
+        </motion.p>
+      </div>
 
+      {/* Submit Button */}
       <motion.button
         variants={itemVariants}
-        whileHover={{ y: -2 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ y: -2 }} // Lifts up slightly on hover
+        whileTap={{ scale: 0.98 }} // Shrinks slightly when clicked
         type="submit"
-        disabled={loading}
-        className="mt-2 bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition-colors hover:bg-teal-700 disabled:opacity-50"
+        disabled={loading} // Prevents double-clicks
+        className=" bg-teal-600 px-4 py-3 rounded-2xl font-bold text-white shadow-md shadow-teal-900/20 transition-colors hover:bg-teal-700 disabled:opacity-50"
       >
+        {/* Changes text based on loading state and login/signup mode */}
         {loading
-          ? isLogin ? "Logging in..." : "Creating account..."
-          : isLogin ? "Log in" : "Sign up"}
+          ? isLogin
+            ? "Logging in..."
+            : "Creating account..."
+          : isLogin
+            ? "Log in"
+            : "Sign up"}
       </motion.button>
 
+      {/* Social Login Buttons (Google / GitHub) */}
       <SocialButtons />
 
-      <motion.p variants={itemVariants} className="text-center text-sm text-teal-700/70">
+      {/* Footer: Toggle between Login and Signup */}
+      <motion.p
+        variants={itemVariants}
+        className="text-center text-sm text-teal-700/70"
+      >
         {isLogin ? "Don't have an account?" : "Already have an account?"}
         <button
           type="button"
-          onClick={onSwitch}
+          onClick={onSwitch} // Calls the parent function to slide the panels
           className="font-bold text-teal-700 hover:underline ml-1"
         >
           {isLogin ? "Sign up" : "Log in"}
