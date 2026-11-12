@@ -1,20 +1,30 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Pencil } from "lucide-react";
 
-const TaskItem = ({ task, onDelete, onEdit }) => {
+const TaskItem = ({ task, onDelete, onEdit, onToggle }) => {
   return (
     // The list item card
     <li className="flex items-start justify-between gap-4 rounded-2xl border border-teal-900/5 bg-white/80 backdrop-blur p-5 shadow-sm transition-all hover:shadow-lg hover:shadow-teal-900/5">
-      {/* Title + description  */}
-      <div>
-        {/* Task Title*/}
-        <p className="font-bold text-base wrap-anywhere">{task.title}</p>
+      <div className="flex items-start gap-3 min-w-0">
+        {/* Checkbox to toggle the task's completed status */}
+        <Checkbox
+          checked={task.is_completed}
+          onCheckedChange={() => onToggle(task)}
+          className="mt-1 shrink-0 data-checked:bg-teal-600! data-checked:border-teal-500! data-checked:text-white!"
+        />
 
-        {/* Task Description*/}
-        {task.description && (
-          <p className="mt-1 text-sm text-teal-800/60 leading-relaxed wrap-anywhere">
-            {task.description}
-          </p>
-        )}
+        {/* Title + description  */}
+        <div className={task.is_completed ? "opacity-50 line-through" : ""}>
+          {/* Task Title*/}
+          <p className="font-bold text-base wrap-anywhere">{task.title}</p>
+
+          {/* Task Description*/}
+          {task.description && (
+            <p className="mt-1 text-sm text-teal-800/60 leading-relaxed wrap-anywhere">
+              {task.description}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Container for action buttons */}

@@ -5,6 +5,7 @@ import NewTaskDialog from "@/components/tasks/NewTaskDialog";
 import { getTasks, deleteTask } from "@/services/taskService";
 import EditTaskDialog from "@/components/tasks/EditTaskDialog";
 import { toast } from "sonner";
+import { updateTask } from "@/services/taskService";
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -104,6 +105,31 @@ const TasksPage = () => {
     );
   };
 
+  // Toggles a task's completed status with an optimistic update
+  const handleToggleTask = async (task) => {
+    const newStatus = !task.is_completed;
+
+    // Optimistically update the UI
+    setTasks((prev) =>
+      prev.map((item) =>
+        item.id === task.id ? { ...item, is_completed: newStatus } : item,
+      ),
+    );
+
+    try {
+      await updateTask(task.id, { is_completed: newStatus });
+    } catch (err) {
+      // Revert uf ut fails
+      setTasks((prev) =>
+        prev.map((item) =>
+          item.id === task.id
+            ? { ...item, is_completed: task.is_completed }
+            : item,
+        ),
+      );
+    }
+  };
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       {/* Title row: heading + New Task button */}
@@ -144,6 +170,7 @@ const TasksPage = () => {
             task={task}
             onDelete={handleDeleteTask}
             onEdit={setEditingTask}
+            onToggle={handleToggleTask}
           />
         ))}
       </ul>
