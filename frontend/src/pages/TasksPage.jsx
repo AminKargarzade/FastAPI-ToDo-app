@@ -182,7 +182,7 @@ const TasksPage = () => {
         <p className="text-teal-800/60">No tasks yet. Create your first one!</p>
       )}
 
-      {error && !loading && tasks.length > 0 && visibleTasks.length === 0 && (
+      {!error && !loading && tasks.length > 0 && visibleTasks.length === 0 && (
         <p className="text-teal-800/60 wrap-anywhere">
           No tasks match "{search}".
         </p>
