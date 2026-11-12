@@ -117,9 +117,13 @@ const TasksPage = () => {
     );
 
     try {
-      await updateTask(task.id, { is_completed: newStatus });
+      await updateTask(task.id, {
+        title: task.title,
+        description: task.description,
+        is_completed: newStatus,
+      });
     } catch (err) {
-      // Revert uf ut fails
+      // Revert if it fails (back to the ORIGINAL status)
       setTasks((prev) =>
         prev.map((item) =>
           item.id === task.id
