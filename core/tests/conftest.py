@@ -10,6 +10,11 @@ from sqlalchemy.orm import sessionmaker
 
 from core.database import Base, get_db
 from main import app
+from faker import Faker
+from users.models import UserModel
+from tasks.models import TaskModel
+
+fake = Faker()
 
 engine = create_engine(
     "sqlite:///:memory:",
@@ -20,7 +25,7 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 # module fixture but 2 of them !
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="package")
 def db_session():
     db = TestSessionLocal()
     try:
@@ -50,3 +55,27 @@ def tear_up_and_down_database():
 def anon_client():
     client = TestClient(app)
     yield client
+
+
+@pytest.fixture(scope="package", autouse=True)
+def generate_mock_data(db_session):
+    user = UserModel(username="testuser")
+    user.set_password("123")
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    print(f"Seeded user: {user.username} with password '123' and ID: {user.id}")
+
+    tasks_list = []
+    for _ in range(10):
+        tasks_list.append(
+            TaskModel(
+                user_id=user.id,
+                title=fake.sentence(nb_words=6),
+                description=fake.text(),
+                is_completed=fake.boolean(),
+            )
+        )
+    db_session.add_all(tasks_list)
+    db_session.commit()
+    print(f"Seeded 10 tasks for user_id: {user.id}")

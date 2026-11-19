@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from core.database import get_db
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import DecodeError, InvalidSignatureError
 from core.config import settings
@@ -57,7 +57,7 @@ def get_authenticated_user(
 
 
 def generate_access_token(user_id: int, expires_in: int = 60 * 5) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": "access",
         "user_id": user_id,
@@ -68,7 +68,7 @@ def generate_access_token(user_id: int, expires_in: int = 60 * 5) -> str:
 
 
 def generate_refresh_token(user_id: int, expires_in: int = 3600 * 24) -> str:
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     payload = {
         "type": "refresh",
         "user_id": user_id,
