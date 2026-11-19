@@ -58,7 +58,13 @@ async def user_register(request: UserRegisterSchema, db: Session = Depends(get_d
     user_obj.set_password(request.password)
     db.add(user_obj)
     db.commit()
-    return JSONResponse(content={"detail": "User Registered Successfully!"})
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={
+            "detail": "User Registered Successfully!",
+            "username": user_obj.username,
+        },
+    )
 
 
 @router.post("/refresh-token")
