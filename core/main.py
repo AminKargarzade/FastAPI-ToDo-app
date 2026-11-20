@@ -1,4 +1,7 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
@@ -69,3 +72,26 @@ app.add_middleware(
 
 # Enabling Gzip for compressing responses more than 1000 bytes
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    error_response = {
+        "error": True,
+        "status_code": exc.status_code,
+        "detail": str(exc.detail),
+    }
+    return JSONResponse(status_code=exc.status_code, content=error_response)
+
+
+@app.exception_handler(RequestValidationError)
+async def http_validation_exception_handler(request, exc):
+    error_response = {
+        "error": True,
+        "status_code": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "detail": "There was a problem with your form request. Please check the input and try again.",
+        "content": exc.errors(),
+    }
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=error_response
+    )
